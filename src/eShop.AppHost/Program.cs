@@ -5,7 +5,12 @@ using DistributedApplicationBuilderExtensions = ProcfilerOnline.Aspire.Distribut
 var builder = DistributedApplication.CreateBuilder(args);
 
 builder.AddForwardedHeaders();
-const string Procfiler = @"/Users/aero/work/workspace/Procfiler/src/dotnet/ProcfilerOnline/bin/Release/net9.0/ProcfilerOnline";
+
+var ext = Environment.OSVersion.Platform.ToString().Contains("win", StringComparison.CurrentCultureIgnoreCase)
+    ? ".exe"
+    : string.Empty;
+
+var procfilerExePath = $@"..\..\..\workspace\Procfiler\src\dotnet\ProcfilerOnline\bin\Release\net9.0\ProcfilerOnline{ext}";
 
 var redis = builder.AddRedis("redis");
 var rabbitMq = builder.AddRabbitMQ("eventbus")
@@ -33,7 +38,7 @@ void ConfigureSettings(DistributedApplicationBuilderExtensions.ProcfilerSettings
 var identityApi = builder
     .AddLocalProcfilerExecutable<Projects.Identity_API>(
         "identity-api",
-        Procfiler,
+        procfilerExePath,
         settings =>
         {
             ConfigureSettings(settings, @"eShop\.Identity\.API");
@@ -48,7 +53,7 @@ var identityEndpoint = identityApi.GetEndpoint(launchProfileName);
 var basketApi = builder
     .AddLocalProcfilerExecutable<Projects.Basket_API>(
         "basket-api",
-        Procfiler,
+        procfilerExePath,
         settings => ConfigureSettings(settings, @"eShop\.Basket\.API")
     )
     .WithReference(redis)
@@ -59,7 +64,7 @@ redis.WithParentRelationship(basketApi);
 var catalogApi = builder
     .AddLocalProcfilerExecutable<Projects.Catalog_API>(
         "catalog-api",
-        Procfiler,
+        procfilerExePath,
         settings => ConfigureSettings(settings, @"eShop\.Catalog\.API")
     )
     .WithReference(rabbitMq)
@@ -69,7 +74,7 @@ var catalogApi = builder
 var orderingApi = builder
     .AddLocalProcfilerExecutable<Projects.Ordering_API>(
         "ordering-api",
-        Procfiler,
+        procfilerExePath,
         settings => ConfigureSettings(settings, @"eShop\.Ordering\.API")
     )
     .WithReference(rabbitMq).WaitFor(rabbitMq)
@@ -80,7 +85,7 @@ var orderingApi = builder
 builder.
     AddLocalProcfilerExecutable<Projects.OrderProcessor>(
         "order-processor",
-        Procfiler,
+        procfilerExePath,
         settings => ConfigureSettings(settings, @"eShop\.OrderProcessor\.API")
     )
     .WithReference(rabbitMq).WaitFor(rabbitMq)

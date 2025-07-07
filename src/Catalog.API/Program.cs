@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning.Builder;
 using System.Reflection;
+using ProcfilerLoggerProvider;
 
 var builder = WebApplication.CreateBuilder(args);
 

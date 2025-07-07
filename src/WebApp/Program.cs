@@ -1,5 +1,6 @@
 ﻿using eShop.WebApp.Components;
 using eShop.ServiceDefaults;
+using ProcfilerLoggerProvider;
 
 var builder = WebApplication.CreateBuilder(args);
 
