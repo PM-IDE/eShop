@@ -21,4 +21,11 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Basket.FunctionalTests" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ProcfilerLoggerProvider">
+      <HintPath>../workspace/Procfiler/src/dotnet/ProcfilerLoggerProvider/bin/Release/net9.0/ProcfilerLoggerProvider.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
