@@ -54,4 +54,11 @@
     <Compile Include="..\Shared\MigrateDbContextExtensions.cs" Link="Extensions\MigrateDbContextExtensions.cs" />
     <Compile Include="..\Shared\ActivityExtensions.cs" Link="Extensions\ActivityExtensions.cs" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ProcfilerLoggerProvider">
+      <HintPath>../workspace/Procfiler/src/dotnet/ProcfilerLoggerProvider/bin/Release/net9.0/ProcfilerLoggerProvider.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

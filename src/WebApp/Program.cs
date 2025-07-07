@@ -8,6 +8,7 @@ builder.AddServiceDefaults();
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
 builder.AddApplicationServices();
+builder.Logging.AddProcfilerLogger(s => s.LogLevel = LogLevel.Debug);
 
 var app = builder.Build();
 

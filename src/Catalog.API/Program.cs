@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 builder.AddApplicationServices();
 builder.Services.AddProblemDetails();
+builder.Logging.AddProcfilerLogger(s => s.LogLevel = LogLevel.Debug);
 
 var withApiVersioning = builder.Services.AddApiVersioning();
 

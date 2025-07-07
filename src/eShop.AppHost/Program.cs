@@ -1,8 +1,11 @@
 ﻿using eShop.AppHost;
+using ProcfilerOnline.Aspire;
+using DistributedApplicationBuilderExtensions = ProcfilerOnline.Aspire.DistributedApplicationBuilderExtensions;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
 builder.AddForwardedHeaders();
+const string Procfiler = @"/Users/aero/work/workspace/Procfiler/src/dotnet/ProcfilerOnline/bin/Release/net9.0/ProcfilerOnline";
 
 var redis = builder.AddRedis("redis");
 var rabbitMq = builder.AddRabbitMQ("eventbus")
@@ -20,29 +23,66 @@ var webhooksDb = postgres.AddDatabase("webhooksdb");
 var launchProfileName = ShouldUseHttpForEndpoints() ? "http" : "https";
 
 // Services
-var identityApi = builder.AddProject<Projects.Identity_API>("identity-api", launchProfileName)
+void ConfigureSettings(DistributedApplicationBuilderExtensions.ProcfilerSettings settings, string regex)
+{
+    settings.BootstrapServers = "localhost:9092";
+    settings.TopicName = "my-topic";
+    settings.TargetMethodsRegex = settings.MethodsFilterRegex = regex;
+}
+
+var identityApi = builder
+    .AddLocalProcfilerExecutable<Projects.Identity_API>(
+        "identity-api",
+        Procfiler,
+        settings =>
+        {
+            ConfigureSettings(settings, @"eShop\.Identity\.API");
+        }
+    )
     .WithExternalHttpEndpoints()
+    .WaitFor(identityDb)
     .WithReference(identityDb);
 
 var identityEndpoint = identityApi.GetEndpoint(launchProfileName);
 
-var basketApi = builder.AddProject<Projects.Basket_API>("basket-api")
+var basketApi = builder
+    .AddLocalProcfilerExecutable<Projects.Basket_API>(
+        "basket-api",
+        Procfiler,
+        settings => ConfigureSettings(settings, @"eShop\.Basket\.API")
+    )
     .WithReference(redis)
     .WithReference(rabbitMq).WaitFor(rabbitMq)
     .WithEnvironment("Identity__Url", identityEndpoint);
 redis.WithParentRelationship(basketApi);
 
-var catalogApi = builder.AddProject<Projects.Catalog_API>("catalog-api")
-    .WithReference(rabbitMq).WaitFor(rabbitMq)
+var catalogApi = builder
+    .AddLocalProcfilerExecutable<Projects.Catalog_API>(
+        "catalog-api",
+        Procfiler,
+        settings => ConfigureSettings(settings, @"eShop\.Catalog\.API")
+    )
+    .WithReference(rabbitMq)
+    .WaitFor(rabbitMq)
     .WithReference(catalogDb);
 
-var orderingApi = builder.AddProject<Projects.Ordering_API>("ordering-api")
+var orderingApi = builder
+    .AddLocalProcfilerExecutable<Projects.Ordering_API>(
+        "ordering-api",
+        Procfiler,
+        settings => ConfigureSettings(settings, @"eShop\.Ordering\.API")
+    )
     .WithReference(rabbitMq).WaitFor(rabbitMq)
     .WithReference(orderDb).WaitFor(orderDb)
     .WithHttpHealthCheck("/health")
     .WithEnvironment("Identity__Url", identityEndpoint);
 
-builder.AddProject<Projects.OrderProcessor>("order-processor")
+builder.
+    AddLocalProcfilerExecutable<Projects.OrderProcessor>(
+        "order-processor",
+        Procfiler,
+        settings => ConfigureSettings(settings, @"eShop\.OrderProcessor\.API")
+    )
     .WithReference(rabbitMq).WaitFor(rabbitMq)
     .WithReference(orderDb)
     .WaitFor(orderingApi); // wait for the orderingApi to be ready because that contains the EF migrations
@@ -77,17 +117,17 @@ var webApp = builder.AddProject<Projects.WebApp>("webapp", launchProfileName)
     .WithEnvironment("IdentityUrl", identityEndpoint);
 
 // set to true if you want to use OpenAI
-bool useOpenAI = false;
-if (useOpenAI)
-{
-    builder.AddOpenAI(catalogApi, webApp);
-}
-
-bool useOllama = false;
-if (useOllama)
-{
-    builder.AddOllama(catalogApi, webApp);
-}
+//bool useOpenAI = false;
+// if (useOpenAI)
+// {
+//     builder.AddOpenAI(catalogApi, webApp);
+// }
+//
+// bool useOllama = false;
+// if (useOllama)
+// {
+//     builder.AddOllama(catalogApi, webApp);
+// }
 
 // Wire up the callback urls (self referencing)
 webApp.WithEnvironment("CallBackUrl", webApp.GetEndpoint(launchProfileName));

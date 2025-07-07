@@ -31,4 +31,9 @@
     <ProjectReference Include="..\WebhookClient\WebhookClient.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="ProcfilerLoggerProvider">
+      <HintPath>../workspace/Procfiler/src/ProcfilerOnline.Aspire/bin/Release/net9.0/ProcfilerOnline.Aspire.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>
