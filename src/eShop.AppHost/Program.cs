@@ -10,7 +10,11 @@ var ext = Environment.OSVersion.Platform.ToString().Contains("win", StringCompar
     ? ".exe"
     : string.Empty;
 
-var procfilerExePath = $@"..\..\..\workspace\Procfiler\src\dotnet\ProcfilerOnline\bin\Release\net9.0\ProcfilerOnline{ext}";
+var parentDir = Directory.GetParent(Directory.GetCurrentDirectory())?.Parent?.Parent;
+var procfilerExePath = Path.Combine(
+    parentDir!.FullName, "workspace", "Procfiler", "src", "dotnet", "ProcfilerOnline", 
+    "bin", "Release", "net9.0", $"ProcfilerOnline{ext}"
+);
 
 var redis = builder.AddRedis("redis");
 var rabbitMq = builder.AddRabbitMQ("eventbus")
