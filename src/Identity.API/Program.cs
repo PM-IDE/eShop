@@ -7,7 +7,11 @@ builder.AddServiceDefaults();
 builder.Services.AddControllersWithViews();
 
 builder.AddNpgsqlDbContext<ApplicationDbContext>("identitydb");
-builder.Logging.AddProcfilerLogger(s => s.LogLevel = LogLevel.Debug);
+builder.Logging.AddProcfilerLogger(s =>
+{
+    s.LogLevel = LogLevel.Debug;
+    s.MessageLogKind = MessageLogKind.OriginalFormat;
+});
 
 // Apply database migration automatically. Note that this approach is not
 // recommended for production scenarios. Consider generating SQL scripts from

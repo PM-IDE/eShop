@@ -4,7 +4,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddBasicServiceDefaults();
 builder.AddApplicationServices();
-builder.Logging.AddProcfilerLogger(s => s.LogLevel = LogLevel.Debug);
+builder.Logging.AddProcfilerLogger(s =>
+{
+    s.LogLevel = LogLevel.Debug;
+    s.MessageLogKind = MessageLogKind.OriginalFormat;
+});
 
 builder.Services.AddGrpc();
 

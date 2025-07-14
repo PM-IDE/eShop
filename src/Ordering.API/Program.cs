@@ -5,7 +5,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 builder.AddApplicationServices();
 builder.Services.AddProblemDetails();
-builder.Logging.AddProcfilerLogger(s => s.LogLevel = LogLevel.Debug);
+builder.Logging.AddProcfilerLogger(s =>
+{
+    s.LogLevel = LogLevel.Debug;
+    s.MessageLogKind = MessageLogKind.OriginalFormat;
+});
 
 var withApiVersioning = builder.Services.AddApiVersioning();
 
