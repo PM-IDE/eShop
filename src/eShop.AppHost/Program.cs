@@ -13,7 +13,7 @@ var ext = Environment.OSVersion.Platform.ToString().Contains("win", StringCompar
 var parentDir = Directory.GetParent(Directory.GetCurrentDirectory())?.Parent?.Parent;
 var procfilerExePath = Path.Combine(
     parentDir!.FullName, "workspace", "Procfiler", "src", "dotnet", "ProcfilerOnline", 
-    "bin", "Release", "net9.0", $"ProcfilerOnline{ext}"
+    "bin", "Release", "net10.0", $"ProcfilerOnline{ext}"
 );
 
 var redis = builder.AddRedis("redis");
@@ -102,11 +102,6 @@ var webHooksApi = builder.AddProject<Projects.Webhooks_API>("webhooks-api")
     .WithReference(rabbitMq).WaitFor(rabbitMq)
     .WithReference(webhooksDb)
     .WithEnvironment("Identity__Url", identityEndpoint);
-
-// Reverse proxies
-builder.AddYarp("mobile-bff")
-    .WithExternalHttpEndpoints()
-    .ConfigureMobileBffRoutes(catalogApi, orderingApi, identityApi);
 
 // Apps
 var webhooksClient = builder.AddProject<Projects.WebhookClient>("webhooksclient", launchProfileName)
